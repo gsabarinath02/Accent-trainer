@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[24]7.ai - Accent Trainer</title>
+    <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        nav {
+            background-color: #333;
+            color: white;
+            width: 200px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        nav.active {
+            transform: translateX(0);
+        }
+
+        nav a {
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        nav a:hover {
+            background-color: #575757;
+        }
+
+        nav .icon {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            flex-grow: 1;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #262421;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px 0;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #waveform {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+
+        #result {
+            display: none;
+            max-width: 100%;
+            margin: 20px 0;
+            padding: 2px;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .word {
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .word .left-half,
+        .word .right-half {
+            display: inline-block;
+            padding: 8px 12px;
+            height: 100%;
+        }
+
+        .word .left-half {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            background-color: #eee;
+        }
+
+        .word .right-half {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            background-color: #ddd;
+            color: #000;
+        }
+
+        .green .left-half {
+            background-color: #008000;
+            color: #fff;
+        }
+
+        .blue .left-half {
+            background-color: #26b0e3;
+            color: #000;
+        }
+
+        .lime .left-half {
+            background-color: #00FF00;
+            color: #000;
+        }
+
+        .yellow .left-half {
+            background-color: #FFFF00;
+            color: #000;
+        }
+
+        .light-yellow .left-half {
+            background-color: #d9d944;
+            color: #000;
+        }
+
+        .lemon .left-half {
+            background-color: #968a1c;
+            color: #000;
+        }
+
+        .orange .left-half {
+            background-color: #FFA500;
+            color: #000;
+        }
+
+        .light-orange .left-half {
+            background-color: #e29048;
+            color: #000;
+        }
+
+        .tangerine .left-half {
+            background-color: #FF8C00;
+            color: #000;
+        }
+
+        .red .left-half {
+            background-color: #FF0000;
+            color: #fff;
+        }
+
+        .score {
+            font-size: 12px;
+            color: #555;
+            margin-left: 5px;
+        }
+
+        #toggleSidebar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        #toggleSidebar:hover {
+            color: #ddd;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        #segmentScores {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #segmentScores th,
+        #segmentScores td {
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        #segmentScores th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #segmentScores td {
+            background-color: #f4f4f9;
+        }
+
+        /* Recommendations Modal */
+        #recommendationsModal .modal-content {
+            max-width: 600px;
+        }
+
+        #recommendationsContent {
+            margin-bottom: 20px;
+        }
+
+        /* About Modal */
+        #aboutModal .modal-content {
+            max-width: 800px;
+        }
+
+        #aboutModal h2 {
+            margin-top: 0;
+        }
+
+        #aboutModal p {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: none;
+            }
+
+            main {
+                padding: 10px;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            #waveform {
+                height: 150px;
+            }
+
+            .word {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .word .left-half,
+            .word .right-half {
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .word .left-half {
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+
+            .word .right-half {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
+
+            #toggleSidebar {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>[24]7.ai - Test Your Pronunciation Here</h1>
+    </header>
+    <nav>
+        <i class="fas fa-home icon"></i>
+        <a href="#">Home</a>
+        <i class="fas fa-upload icon"></i>
+        <a href="#">Upload</a>
+        <i class="fas fa-info-circle icon" id="aboutBtn"></i>
+        <a href="#">About</a>
+        <i class="fas fa-envelope icon"></i>
+        <a href="#">Contact</a>
+        <button id="segmentScoresBtn"><i class="fas fa-chart-bar"></i> Segment Scores</button>
+        <button id="recommendationsBtn"><i class="fas fa-lightbulb"></i> Recommendations</button>
+    </nav>
+    <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+    <main>
+        <form id="form">
+            <input type="text" id="text" name="text" placeholder="Enter Your Text Here..."
+                oninput="this.value = this.value.toUpperCase()" required>
+            <input type="hidden" id="audio" name="audio">
+            <div class="button-group">
+                <button type="button" id="record"><i class="fas fa-microphone"></i>Start Recording</button>
+                <button type="button" id="play" disabled><i class="fas fa-play"></i>Play Audio</button>
+                <button type="button" id="tts"><i class="fas fa-volume-up"></i>Play Actual</button>
+            </div>
+        </form>
+        <div id="waveform"></div>
+        <div id="result"></div>
+    </main>
+
+    <!-- Modal for Segment Scores -->
+    <div id="segmentScoresModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Segment Scores</h2>
+            <table id="segmentScores">
+                <thead>
+                    <tr>
+                        <th>Segment</th>
+                        <th>Start Time (s)</th>
+                        <th>End Time (s)</th>
+                        <th>Score</th>
+                        <th>Log Likelihood</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic Content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Recommendations -->
+    <div id="recommendationsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Recommendations</h2>
+            <div id="recommendationsContent"></div>
+            <button id="practiceNowBtn">Practice Now</button>
+        </div>
+    </div>
+
+    <!-- Modal for About -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>About This Project</h2>
+            <p>This project is designed to help users test their pronunciation by recording their speech and comparing
+                it to the provided text. It uses advanced speech recognition technology to evaluate pronunciation
+                accuracy and provide feedback in the form of word and segment scores.</p>
+            <h3>How to Use</h3>
+            <ol>
+                <li>Enter the text you want to pronounce in the input field.</li>
+                <li>Click on the "Start Recording" button to record your speech.</li>
+                <li>Once recording is complete, click on the "Play Audio" button to listen to your recording.</li>
+                <li>The results will be displayed, showing the pronunciation accuracy for each word and segment.</li>
+                <li>Click on any word to hear that specific segment of your recording.</li>
+                <li>Use the "Segment Scores" button to view detailed segment scores in a modal.</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const sentences = [
+            "The quick brown fox jumps over the lazy dog",
+            "She sells seashells by the seashore",
+            "How much wood would a woodchuck chuck if a woodchuck could chuck wood",
+            "Peter Piper picked a peck of pickled peppers",
+            "A big black bug bit a big black bear"
+        ];
+
+        function getRandomSentence() {
+            const randomIndex = Math.floor(Math.random() * sentences.length);
+            return sentences[randomIndex];
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const randomSentence = getRandomSentence();
+            document.getElementById('text').value = randomSentence.toUpperCase();
+
+            wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: 'violet',
+                progressColor: 'purple'
+            });
+        });
+
+        const form = document.getElementById('form');
+        const recordButton = document.getElementById('record');
+        const playButton = document.getElementById('play');
+        const ttsButton = document.getElementById('tts');
+        const resultDiv = document.getElementById('result');
+        const audioInput = document.getElementById('audio');
+        const textInput = document.getElementById('text');
+        const segmentScoresBtn = document.getElementById('segmentScoresBtn');
+        const recommendationsBtn = document.getElementById('recommendationsBtn');
+        const segmentScoresModal = document.getElementById('segmentScoresModal');
+        const recommendationsModal = document.getElementById('recommendationsModal');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const aboutModal = document.getElementById('aboutModal');
+        const modalClose = document.querySelectorAll('.modal-close');
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let wavesurfer;
+        let audioContext;
+        let audioBuffer;
+
+        textInput.addEventListener('input', function () {
+            if (textInput.value.trim() !== '') {
+                ttsButton.disabled = false;
+            } else {
+                ttsButton.disabled = true;
+            }
+        });
+
+        recordButton.addEventListener('click', function () {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    recordButton.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+                    playButton.disabled = true;
+
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener('dataavailable', function (event) {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener('stop', function () {
+                        processRecording();
+                    });
+                });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            recordButton.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+            playButton.disabled = false;
+        }
+
+        function processRecording() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = function () {
+                const base64data = reader.result;
+                audioInput.value = base64data;
+                wavesurfer.loadBlob(audioBlob);
+
+                audioBlob.arrayBuffer().then(arrayBuffer => {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioContext.decodeAudioData(arrayBuffer, function (buffer) {
+                        audioBuffer = buffer;
+                    });
+                });
+
+                submitForm();
+            };
+        }
+
+        playButton.addEventListener('click', function () {
+            wavesurfer.playPause();
+        });
+
+        ttsButton.addEventListener('click', function () {
+            const text = textInput.value.trim().toLowerCase();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        });
+
+        function classifyPerformance(score, log_likelihood) {
+            const categories = { "Green": 5, "Blue": 4, "Orange": 3, "Red": 2 };
+
+            let scoreClass = score > 0.95 ? "Green" :
+                score > 0.85 ? "Blue" :
+                    score > 0.80 ? "Orange" :
+                        score > 0.75 ? "Orange" : "Red";
+
+            let logClass = log_likelihood > -0.9 ? "Green" :
+                log_likelihood > -2 ? "Blue" :
+                    log_likelihood > -3 ? "Orange" :
+                        log_likelihood > -4.9 ? "Orange" : "Red";
+
+            let finalClass = categories[scoreClass] < categories[logClass] ? scoreClass : logClass;
+
+            return finalClass.toLowerCase();
+        }
+
+        function submitForm() {
+            const formData = new FormData(form);
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.innerHTML = '';
+                    const segmentScoresBody = document.querySelector('#segmentScores tbody');
+                    segmentScoresBody.innerHTML = '';
+
+                    const performanceData = [];
+
+                    data.word_segments.forEach(item => {
+                        const wordSpan = document.createElement('span');
+                        wordSpan.className = 'word';
+
+                        const classification = classifyPerformance(item.score, item.log_likelihood);
+
+                        let scoreDisplay = classification === 'red' ? '' : ` (${item.score})`;
+
+                        wordSpan.innerHTML = `<span class="left-half">${item.word}${scoreDisplay}</span><span class="right-half">Actual</span>`;
+                        wordSpan.setAttribute('data-start', item.start_time);
+                        wordSpan.setAttribute('data-end', item.end_time);
+                        wordSpan.setAttribute('data-word', item.word.toLowerCase());
+                        wordSpan.classList.add(classification);
+
+                        resultDiv.appendChild(wordSpan);
+
+                        wordSpan.querySelector('.left-half').addEventListener('click', function () {
+                            const start = parseFloat(wordSpan.getAttribute('data-start'));
+                            const end = parseFloat(wordSpan.getAttribute('data-end'));
+
+                            if (audioBuffer) {
+                                const audioSource = audioContext.createBufferSource();
+                                audioSource.buffer = audioBuffer;
+                                audioSource.connect(audioContext.destination);
+
+                                const startTime = start;
+                                const duration = end - start;
+                                audioSource.start(0, startTime, duration);
+                            }
+                        });
+
+                        wordSpan.querySelector('.right-half').addEventListener('click', function () {
+                            const word = wordSpan.getAttribute('data-word');
+                            const utterance = new SpeechSynthesisUtterance(word);
+                            utterance.lang = 'en-US';
+                            window.speechSynthesis.speak(utterance);
+                        });
+
+                        performanceData.push({
+                            word: item.word,
+                            score: item.score,
+                            log_likelihood: item.log_likelihood,
+                            classification: classification
+                        });
+                    });
+
+                    data.segments.forEach(segment => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${segment.label}</td>
+                            <td>${segment.start_time}</td>
+                            <td>${segment.end_time}</td>
+                            <td>${segment.score}</td>
+                            <td>${segment.log_likelihood}</td>
+                        `;
+                        segmentScoresBody.appendChild(row);
+                    });
+
+                    resultDiv.style.display = 'flex';
+
+                    savePerformanceData(performanceData);
+
+                    provideRecommendations();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function savePerformanceData(performanceData) {
+            let performanceHistory = JSON.parse(localStorage.getItem('performanceHistory')) || [];
+            performanceHistory.push({
+                date: new Date().toISOString(),
+                data: performanceData
+            });
+            localStorage.setItem('performanceHistory', JSON.stringify(performanceHistory));
+        }
+
+        function getPerformanceData() {
+            return JSON.parse(localStorage.getItem('performanceHistory')) || [];
+        }
+
+        function provideRecommendations() {
+            const performanceHistory = getPerformanceData();
+            if (performanceHistory.length === 0) return;
+
+            const recentPerformance = performanceHistory[performanceHistory.length - 1].data;
+            const weakWords = recentPerformance.filter(item => item.classification === 'red' || item.classification === 'orange');
+
+            const recommendationsContent = document.getElementById('recommendationsContent');
+            recommendationsContent.innerHTML = '';
+
+            if (weakWords.length > 0) {
+                const wordsList = weakWords.map(item => item.word).join(', ');
+                recommendationsContent.innerHTML = `<p>You need to work on the following words: ${wordsList}</p>`;
+            } else {
+                recommendationsContent.innerHTML = '<p>Great job! Keep up the good work!</p>';
+            }
+
+            document.getElementById('recommendationsModal').style.display = 'flex';
+        }
+
+        document.getElementById('practiceNowBtn').addEventListener('click', function () {
+            const performanceHistory = getPerformanceData();
+            if (performanceHistory.length === 0) return;
+
+            const recentPerformance = performanceHistory[performanceHistory.length - 1].data;
+            const weakWords = recentPerformance.filter(item => item.classification === 'red' || item.classification === 'orange');
+            const wordsList = weakWords.map(item => item.word).join(' ');
+
+            if (wordsList) {
+                document.getElementById('text').value = wordsList.toUpperCase();
+            }
+
+            document.getElementById('recommendationsModal').style.display = 'none';
+        });
+
+        const toggleSidebarButton = document.getElementById('toggleSidebar');
+        const nav = document.querySelector('nav');
+
+        toggleSidebarButton.addEventListener('click', function () {
+            nav.classList.toggle('active');
+        });
+
+        segmentScoresBtn.addEventListener('click', function () {
+            segmentScoresModal.style.display = 'flex';
+        });
+
+        recommendationsBtn.addEventListener('click', function () {
+            provideRecommendations();
+        });
+
+        aboutBtn.addEventListener('click', function () {
+            aboutModal.style.display = 'flex';
+        });
+
+        modalClose.forEach(closeBtn => {
+            closeBtn.addEventListener('click', function () {
+                closeBtn.parentElement.parentElement.style.display = 'none';
+            });
+        });
+
+        window.addEventListener('click', function (event) {
+            if (event.target == segmentScoresModal) {
+                segmentScoresModal.style.display = 'none';
+            }
+            if (event.target == recommendationsModal) {
+                recommendationsModal.style.display = 'none';
+            }
+            if (event.target == aboutModal) {
+                aboutModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

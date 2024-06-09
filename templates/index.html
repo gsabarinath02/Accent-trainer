@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[24]7.ai - Accent Trainer</title>
+    <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        nav {
+            background-color: #333;
+            color: white;
+            width: 250px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            padding-top: 20px;
+        }
+
+        nav.hidden {
+            transform: translateX(-100%);
+        }
+
+        nav a,
+        nav .icon-btn,
+        nav .leaderboard-btn {
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        nav a:hover,
+        nav .icon-btn:hover,
+        nav .leaderboard-btn:hover {
+            background-color: #575757;
+        }
+
+        nav .icon {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        nav .small-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 5px 0;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        nav .small-button i {
+            margin-right: 5px;
+        }
+
+        nav .small-button:hover {
+            background-color: #45a049;
+        }
+
+        nav select,
+        nav input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #575757;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        nav select:hover,
+        nav select:focus,
+        nav input[type="text"]:hover,
+        nav input[type="text"]:focus {
+            background-color: #4CAF50;
+            outline: none;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            flex-grow: 1;
+            margin-top: 20px;
+            margin-left: 270px;
+            margin-bottom: 60px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        main.full-width {
+            margin-left: 0;
+        }
+
+        h1 {
+            color: #262421;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+            resize: both;
+            overflow: auto;
+            text-transform: uppercase;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px 0;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #waveform {
+            width: 100%;
+            height: 100%;
+            margin-bottom: 5px;
+        }
+
+        #result {
+            display: none;
+            max-width: 100%;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .word {
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .word .left-half,
+        .word .right-half {
+            display: inline-block;
+            padding: 8px 12px;
+            height: 100%;
+        }
+
+        .word .left-half {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            background-color: #eee;
+        }
+
+        .word .right-half {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            background-color: #ddd;
+            color: #000;
+        }
+
+        .green .left-half {
+            background-color: #008000;
+            color: #fff;
+        }
+
+        .blue .left-half {
+            background-color: #26b0e3;
+            color: #000;
+        }
+
+        .orange .left-half {
+            background-color: #FFA500;
+            color: #000;
+        }
+
+        .red .left-half {
+            background-color: #FF0000;
+            color: #fff;
+        }
+
+        .score {
+            font-size: 12px;
+            color: #555;
+            margin-left: 5px;
+        }
+
+        #toggleSidebar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        #toggleSidebar:hover {
+            color: #ddd;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow-y: auto;
+            max-height: 80%;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        #leaderboardContent {
+            margin-top: 10px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: #ddd;
+        }
+
+        @media (max-width: 1024px) {
+            nav {
+                width: 220px;
+            }
+
+            main {
+                margin-left: 240px;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 6px;
+            }
+
+            #toggleSidebar {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: none;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            main {
+                padding: 10px;
+                margin-left: 0;
+                margin-top: 0;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            #waveform {
+                height: 150px;
+            }
+
+            .word {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .word .left-half,
+            .word .right-half {
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .word .left-half {
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+
+            .word .right-half {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
+
+            #toggleSidebar {
+                font-size: 18px;
+            }
+
+            #leaderboardContent {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            width: 100%;
+            font-size: 12px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        footer .score-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        footer .color-box {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 3px;
+        }
+
+        footer .color-box.red {
+            background-color: #FF0000;
+        }
+
+        footer .color-box.green {
+            background-color: #008000;
+        }
+
+        footer .color-box.blue {
+            background-color: #26b0e3;
+        }
+
+        footer .color-box.orange {
+            background-color: #FFA500;
+        }
+
+        .about-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .about-list li {
+            margin-bottom: 10px;
+        }
+
+        .about-list li i {
+            color: #4CAF50;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>[24]7.ai - Test Your Pronunciation Here</h1>
+    </header>
+    <nav class="hidden">
+        <i class="fas fa-info-circle icon" id="aboutBtn"></i>
+        <a href="#">About</a>
+        <i class="fas fa-upload icon">
+            <input type="file" id="upload" accept=".wav" style="display:none;">
+        </i>
+        <a href="#" onclick="document.getElementById('upload').click();">Upload Audio</a>
+        <div class="icon-btn" id="segmentScoresBtn"><i class="fas fa-chart-bar"></i></div>
+        <div class="icon-btn" id="recommendationsBtn"><i class="fas fa-lightbulb"></i></div>
+        <button class="small-button" id="clearStorage"><i class="fas fa-trash-alt"></i> Clear All Data</button>
+        <button class="small-button" id="hearingTestToggle"><i class="fas fa-headphones"></i> Hearing Test</button>
+        <label for="level" style="color:white; margin-top: 15px;">Choose Level:</label>
+        <select id="level">
+            <option value="Beginner">Beginner</option>
+            <option value="Advanced">Advanced</option>
+            <option value="Professional">Professional</option>
+            <option value="Mixed">Mixed</option>
+        </select>
+        <label for="userName" style="color:white; margin-top: 15px;">Your Name:</label>
+        <input type="text" id="userName" placeholder="Enter your name"
+            style="padding: 10px; width: 80%; border-radius: 5px; margin-top: 10px;">
+        <button class="leaderboard-btn" id="leaderboardBtn"><i class="fas fa-trophy"></i> Leaderboard</button>
+    </nav>
+    <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+    <main class="full-width">
+        <form id="form">
+            <textarea id="text" name="text" placeholder="Enter Your Text Here..." required></textarea>
+            <input type="hidden" id="audio" name="audio">
+            <div class="button-group">
+                <button type="button" id="record"><i class="fas fa-microphone"></i>Start Recording</button>
+                <button type="button" id="play" disabled><i class="fas fa-play"></i>Play Audio</button>
+                <button type="button" id="tts"><i class="fas fa-volume-up"></i>Play Actual</button>
+            </div>
+        </form>
+        <div id="waveform"></div>
+        <div id="result"></div>
+    </main>
+
+    <!-- Modal for Segment Scores -->
+    <div id="segmentScoresModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Segment Scores</h2>
+            <table id="segmentScores" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">
+                            Segment</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Start
+                            Time (s)</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">End
+                            Time (s)</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Score
+                        </th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Log
+                            Likelihood</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic Content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Recommendations -->
+    <div id="recommendationsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Recommendations</h2>
+            <div id="recommendationsContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal for About -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>About This Project</h2>
+            <p>This project is designed to help users test their pronunciation by recording their speech and comparing
+                it to the provided text. It uses advanced speech recognition technology to evaluate pronunciation
+                accuracy and provide feedback in the form of word and segment scores.</p>
+            <h3>How to Use</h3>
+            <ol class="about-list">
+                <li><i class="fas fa-keyboard"></i> Enter the text you want to pronounce in the input field.</li>
+                <li><i class="fas fa-microphone"></i> Click on the "Start Recording" button to record your speech.</li>
+                <li><i class="fas fa-play"></i> Once recording is complete, click on the "Play Audio" button to listen
+                    to your recording.</li>
+                <li><i class="fas fa-chart-bar"></i> View the results, showing the pronunciation accuracy for each word
+                    and segment.</li>
+                <li><i class="fas fa-volume-up"></i> Click on any word to hear that specific segment of your recording.
+                </li>
+                <li><i class="fas fa-lightbulb"></i> Use the "Recommendations" button to get tailored feedback on how to
+                    improve.</li>
+                <li><i class="fas fa-trash-alt"></i> Use the "Clear All Data" button to reset your progress.</li>
+                <li><i class="fas fa-headphones"></i> Toggle "Hearing Test" mode to hide the text and focus on
+                    listening.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Modal for Leaderboard -->
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Leaderboard</h2>
+            <div id="leaderboardContent"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="score-info">
+            <p>
+                Scores below 75 won't be displayed. <span class="color-box red"></span> Very Bad/Missing
+                <span class="color-box orange"></span> Needs Improvement
+                <span class="color-box blue"></span> Good
+                <span class="color-box green"></span> Excellent
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const sentences = {
+            Beginner: [
+                "a b c d e f g h i j k l m n o p q r s t u v w x y z",
+                "The quick brown fox jumps over the lazy dog",
+                "She sells seashells by the seashore"
+            ],
+            Advanced: [
+                "How much wood would a woodchuck chuck if a woodchuck could chuck wood",
+                "Peter Piper picked a peck of pickled peppers",
+                "A big black bug bit a big black bear"
+            ],
+            Professional: [
+                "I scream, you scream we all scream for ice cream",
+                "Fuzzy Wuzzy was a bear Fuzzy Wuzzy had no hair",
+                "How can a clam cram in a clean cream can"
+            ],
+            Mixed: []
+        };
+
+        sentences.Mixed = [...sentences.Beginner, ...sentences.Advanced, ...sentences.Professional];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedLevel = localStorage.getItem('selectedLevel') || 'Beginner';
+            document.getElementById('level').value = savedLevel;
+
+            const randomSentence = getRandomSentence(savedLevel);
+            document.getElementById('text').value = randomSentence.toUpperCase();
+
+            wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: 'violet',
+                progressColor: 'purple'
+            });
+
+            // Restore hearing test mode from localStorage
+            const hearingTestMode = localStorage.getItem('hearingTestMode') === 'true';
+            setHearingTestMode(hearingTestMode);
+
+            // Set sidebar visibility based on user preference
+            const sidebarVisible = localStorage.getItem('sidebarVisible') !== 'false';
+            if (sidebarVisible) {
+                document.querySelector('nav').classList.remove('hidden');
+                document.querySelector('main').classList.remove('full-width');
+            } else {
+                document.querySelector('nav').classList.add('hidden');
+                document.querySelector('main').classList.add('full-width');
+            }
+
+            // Load saved name from localStorage
+            const savedName = localStorage.getItem('userName') || '';
+            document.getElementById('userName').value = savedName;
+        });
+
+        function getRandomSentence(level) {
+            const sentencesForLevel = sentences[level];
+            const randomIndex = Math.floor(Math.random() * sentencesForLevel.length);
+            return sentencesForLevel[randomIndex];
+        }
+
+        document.getElementById('level').addEventListener('change', function () {
+            const level = document.getElementById('level').value;
+            localStorage.setItem('selectedLevel', level);
+            const randomSentence = getRandomSentence(level);
+            document.getElementById('text').value = randomSentence.toUpperCase();
+        });
+
+        document.getElementById('userName').addEventListener('input', function () {
+            const userName = document.getElementById('userName').value.trim();
+            localStorage.setItem('userName', userName);
+        });
+
+        const form = document.getElementById('form');
+        const recordButton = document.getElementById('record');
+        const playButton = document.getElementById('play');
+        const ttsButton = document.getElementById('tts');
+        const resultDiv = document.getElementById('result');
+        const audioInput = document.getElementById('audio');
+        const textInput = document.getElementById('text');
+        const segmentScoresBtn = document.getElementById('segmentScoresBtn');
+        const recommendationsBtn = document.getElementById('recommendationsBtn');
+        const leaderboardBtn = document.getElementById('leaderboardBtn');
+        const leaderboardModal = document.getElementById('leaderboardModal');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const aboutModal = document.getElementById('aboutModal');
+        const modalClose = document.querySelectorAll('.modal-close');
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let wavesurfer;
+        let audioContext;
+        let audioBuffer;
+        let hearingTest = false;
+
+        textInput.addEventListener('input', function () {
+            textInput.value = textInput.value.toUpperCase();
+            if (textInput.value.trim() !== '') {
+                ttsButton.disabled = false;
+            } else {
+                ttsButton.disabled = true;
+            }
+        });
+
+        recordButton.addEventListener('click', function () {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    recordButton.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+                    playButton.disabled = true;
+
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener('dataavailable', function (event) {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener('stop', function () {
+                        processRecording();
+                    });
+                });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            recordButton.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+            playButton.disabled = false;
+        }
+
+        function processRecording() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = function () {
+                const base64data = reader.result;
+                audioInput.value = base64data;
+                wavesurfer.loadBlob(audioBlob);
+
+                audioBlob.arrayBuffer().then(arrayBuffer => {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioContext.decodeAudioData(arrayBuffer, function (buffer) {
+                        audioBuffer = buffer;
+                    });
+                });
+
+                submitForm();
+            };
+        }
+
+        playButton.addEventListener('click', function () {
+            wavesurfer.playPause();
+        });
+
+        ttsButton.addEventListener('click', function () {
+            const text = textInput.value.trim().toLowerCase();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        });
+
+        function classifyPerformance(score, log_likelihood) {
+            const categories = { "green": 5, "blue": 4, "orange": 3, "red": 2 };
+
+            let scoreClass = score > 0.95 ? "green" :
+                score > 0.85 ? "blue" :
+                    score > 0.80 ? "orange" :
+                        score > 0.75 ? "orange" : "red";
+
+            let logClass = log_likelihood > -0.9 ? "green" :
+                log_likelihood > -2 ? "blue" :
+                    log_likelihood > -3 ? "orange" :
+                        log_likelihood > -4.9 ? "orange" : "red";
+
+            let finalClass = categories[scoreClass] < categories[logClass] ? scoreClass : logClass;
+
+            return finalClass;
+        }
+
+        function submitForm() {
+            const formData = new FormData(form);
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const userName = localStorage.getItem('userName');
+                    if (!userName) {
+                        alert('Please enter your name.');
+                        return;
+                    }
+
+                    // Process the result as before
+                    resultDiv.innerHTML = '';
+                    const segmentScoresBody = document.querySelector('#segmentScores tbody');
+                    segmentScoresBody.innerHTML = '';
+
+                    const performanceData = [];
+                    const uniqueSentences = new Set();
+                    let totalWordCount = 0;
+                    let totalReadingScore = 0;
+                    let totalListeningScore = 0;
+
+                    data.word_segments.forEach(item => {
+                        uniqueSentences.add(item.sentence);
+                        const wordSpan = document.createElement('span');
+                        wordSpan.className = 'word';
+
+                        const classification = classifyPerformance(item.score, item.log_likelihood);
+
+                        let scoreDisplay = classification === 'red' ? '' : ` (${item.score})`;
+
+                        wordSpan.innerHTML = `<span class="left-half">${item.word}${scoreDisplay}</span><span class="right-half">Actual</span>`;
+                        wordSpan.setAttribute('data-start', item.start_time);
+                        wordSpan.setAttribute('data-end', item.end_time);
+                        wordSpan.setAttribute('data-word', item.word.toLowerCase());
+                        wordSpan.classList.add(classification);
+
+                        resultDiv.appendChild(wordSpan);
+
+                        wordSpan.querySelector('.left-half').addEventListener('click', function () {
+                            const start = parseFloat(wordSpan.getAttribute('data-start'));
+                            const end = parseFloat(wordSpan.getAttribute('data-end'));
+
+                            if (audioBuffer) {
+                                const audioSource = audioContext.createBufferSource();
+                                audioSource.buffer = audioBuffer;
+                                audioSource.connect(audioContext.destination);
+
+                                const startTime = start;
+                                const duration = end - start;
+                                audioSource.start(0, startTime, duration);
+                            }
+                        });
+
+                        wordSpan.querySelector('.right-half').addEventListener('click', function () {
+                            const word = wordSpan.getAttribute('data-word');
+                            const utterance = new SpeechSynthesisUtterance(word);
+                            utterance.lang = 'en-US';
+                            window.speechSynthesis.speak(utterance);
+                        });
+
+                        performanceData.push({
+                            word: item.word,
+                            score: item.score,
+                            log_likelihood: item.log_likelihood,
+                            classification: classification
+                        });
+
+                        totalWordCount++;
+                        totalReadingScore += item.score;
+                        totalListeningScore += item.log_likelihood;
+                        updateWordPerformance(item.word.toLowerCase(), classification);
+                    });
+
+                    const readingScore = totalReadingScore / totalWordCount;
+                    const listeningScore = totalListeningScore / totalWordCount;
+
+                    data.segments.forEach(segment => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.label}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.start_time}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.end_time}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.score}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.log_likelihood}</td>
+                        `;
+                        segmentScoresBody.appendChild(row);
+                    });
+
+                    resultDiv.style.display = 'flex';
+
+                    savePerformanceData(userName, performanceData, uniqueSentences.size, readingScore, listeningScore);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function savePerformanceData(userName, performanceData, uniqueSentenceCount, newReadingScore, newListeningScore) {
+            let results = JSON.parse(localStorage.getItem('results')) || {};
+
+            if (results[userName]) {
+                const currentReadingScore = results[userName].readingScore * results[userName].uniqueSentenceCount;
+                const currentListeningScore = results[userName].listeningScore * results[userName].uniqueSentenceCount;
+
+                results[userName].readingScore = (currentReadingScore + newReadingScore * uniqueSentenceCount) / (results[userName].uniqueSentenceCount + uniqueSentenceCount);
+                results[userName].listeningScore = (currentListeningScore + newListeningScore * uniqueSentenceCount) / (results[userName].uniqueSentenceCount + uniqueSentenceCount);
+                results[userName].uniqueSentenceCount += uniqueSentenceCount;
+            } else {
+                results[userName] = {
+                    readingScore: newReadingScore,
+                    listeningScore: newListeningScore,
+                    uniqueSentenceCount: uniqueSentenceCount,
+                    mispronouncedWords: [],
+                    bestWords: []
+                };
+            }
+
+            results[userName].totalScore = (results[userName].readingScore + results[userName].listeningScore) / 2;
+
+            const mispronouncedWords = performanceData.filter(data => data.classification === 'red' || data.classification === 'orange')
+                .map(data => data.word).slice(0, 5);
+            const bestWords = performanceData.filter(data => data.classification === 'green')
+                .map(data => data.word).slice(0, 5);
+
+            results[userName].mispronouncedWords = mispronouncedWords;
+            results[userName].bestWords = bestWords;
+
+            localStorage.setItem('results', JSON.stringify(results));
+
+            displayLeaderboard(results);
+        }
+
+        function getPerformanceData() {
+            return JSON.parse(localStorage.getItem('performanceHistory')) || [];
+        }
+
+        function getPoorlyPerformedWords() {
+            return JSON.parse(localStorage.getItem('poorlyPerformedWords')) || {};
+        }
+
+        function updateWordPerformance(word, classification) {
+            const poorlyPerformedWords = getPoorlyPerformedWords();
+
+            if (classification === 'red' || classification === 'orange') {
+                if (poorlyPerformedWords[word]) {
+                    poorlyPerformedWords[word].count++;
+                } else {
+                    poorlyPerformedWords[word] = { count: 1 };
+                }
+            } else if (classification === 'blue') {
+                if (poorlyPerformedWords[word] && poorlyPerformedWords[word].count > 0) {
+                    poorlyPerformedWords[word].count--;
+                    if (poorlyPerformedWords[word].count === 0) {
+                        delete poorlyPerformedWords[word];
+                    }
+                }
+            } else if (classification === 'green') {
+                if (poorlyPerformedWords[word]) {
+                    delete poorlyPerformedWords[word];
+                }
+            }
+
+            localStorage.setItem('poorlyPerformedWords', JSON.stringify(poorlyPerformedWords));
+        }
+
+        function provideRecommendations() {
+            const poorlyPerformedWords = getPoorlyPerformedWords();
+            const recommendationsContent = document.getElementById('recommendationsContent');
+            recommendationsContent.innerHTML = '';
+
+            const categorizedWords = {
+                'Very Bad': [],
+                'Need to Improve': [],
+                'Good': [],
+                'Excellent': []
+            };
+
+            const words = document.querySelectorAll('.word');
+            words.forEach(word => {
+                const wordText = word.querySelector('.left-half').innerText.split(' ')[0];
+                if (word.classList.contains('red')) {
+                    categorizedWords['Very Bad'].push(wordText);
+                } else if (word.classList.contains('orange')) {
+                    categorizedWords['Need to Improve'].push(wordText);
+                } else if (word.classList.contains('blue')) {
+                    categorizedWords['Good'].push(wordText);
+                } else if (word.classList.contains('green')) {
+                    categorizedWords['Excellent'].push(wordText);
+                }
+            });
+
+            function addCategoryToContainer(category, words) {
+                const wordList = words.join('<br>');
+                const categoryContainer = document.createElement('div');
+                categoryContainer.classList.add('category-container');
+
+                categoryContainer.innerHTML = `
+                    <div class="category-title">${category}</div>
+                    <div class="word-list">${wordList}</div>
+                    <button class="practice-button" onclick="practiceCategory('${category}')">Practice Now</button>
+                `;
+
+                recommendationsContent.appendChild(categoryContainer);
+            }
+
+            addCategoryToContainer('Very Bad', categorizedWords['Very Bad']);
+            addCategoryToContainer('Need to Improve', categorizedWords['Need to Improve']);
+            addCategoryToContainer('Good', categorizedWords['Good']);
+            addCategoryToContainer('Excellent', categorizedWords['Excellent']);
+        }
+
+        function practiceCategory(category) {
+            const poorlyPerformedWords = getPoorlyPerformedWords();
+            const wordsToPractice = Object.keys(poorlyPerformedWords).filter(word => {
+                const count = poorlyPerformedWords[word].count;
+                const classification = classifyPerformance(count / 10, count / 10);
+                return getCategoryByClass(classification) === category;
+            }).join(' ');
+
+            if (wordsToPractice) {
+                document.getElementById('text').value = wordsToPractice.toUpperCase();
+            }
+
+            document.getElementById('recommendationsModal').style.display = 'none';
+        }
+
+        function getCategoryByClass(classification) {
+            const categories = {
+                'red': 'Very Bad',
+                'orange': 'Need to Improve',
+                'blue': 'Good',
+                'green': 'Excellent'
+            };
+            return categories[classification];
+        }
+
+        document.getElementById('recommendationsBtn').addEventListener('click', function () {
+            provideRecommendations();
+            document.getElementById('recommendationsModal').style.display = 'flex';
+        });
+
+        document.getElementById('upload').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                processUploadedFile(file);
+            }
+        });
+
+        function processUploadedFile(file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function () {
+                const base64data = reader.result;
+                audioInput.value = base64data;
+                wavesurfer.loadBlob(file);
+
+                file.arrayBuffer().then(arrayBuffer => {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioContext.decodeAudioData(arrayBuffer, function (buffer) {
+                        audioBuffer = buffer;
+                        playButton.disabled = false;
+                    });
+                });
+
+                submitForm();
+            };
+        }
+
+        const toggleSidebarButton = document.getElementById('toggleSidebar');
+        const nav = document.querySelector('nav');
+        const main = document.querySelector('main');
+
+        toggleSidebarButton.addEventListener('click', function () {
+            nav.classList.toggle('hidden');
+            main.classList.toggle('full-width');
+            const sidebarVisible = !nav.classList.contains('hidden');
+            localStorage.setItem('sidebarVisible', sidebarVisible);
+        });
+
+        segmentScoresBtn.addEventListener('click', function () {
+            segmentScoresModal.style.display = 'flex';
+        });
+
+        recommendationsBtn.addEventListener('click', function () {
+            provideRecommendations();
+            document.getElementById('recommendationsModal').style.display = 'flex';
+        });
+
+        aboutBtn.addEventListener('click', function () {
+            aboutModal.style.display = 'flex';
+        });
+
+        leaderboardBtn.addEventListener('click', function () {
+            const results = JSON.parse(localStorage.getItem('results')) || {};
+            displayLeaderboard(results);
+            leaderboardModal.style.display = 'flex';
+        });
+
+        modalClose.forEach(closeBtn => {
+            closeBtn.addEventListener('click', function () {
+                closeBtn.parentElement.parentElement.style.display = 'none';
+            });
+        });
+
+        window.addEventListener('click', function (event) {
+            if (event.target == segmentScoresModal) {
+                segmentScoresModal.style.display = 'none';
+            }
+            if (event.target == recommendationsModal) {
+                recommendationsModal.style.display = 'none';
+            }
+            if (event.target == aboutModal) {
+                aboutModal.style.display = 'none';
+            }
+            if (event.target == leaderboardModal) {
+                leaderboardModal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('clearStorage').addEventListener('click', function () {
+            localStorage.clear();
+        });
+
+        document.getElementById('hearingTestToggle').addEventListener('click', function () {
+            hearingTest = !hearingTest;
+            setHearingTestMode(hearingTest);
+        });
+
+        function setHearingTestMode(isHearingTest) {
+            hearingTest = isHearingTest;
+            const hearingTestToggle = document.getElementById('hearingTestToggle');
+            if (hearingTest) {
+                textInput.style.display = 'none';
+                ttsButton.style.display = 'block';
+                ttsButton.disabled = false;
+                hearingTestToggle.innerHTML = '<i class="fas fa-book-reader"></i> Read Test';
+            } else {
+                textInput.style.display = 'block';
+                ttsButton.style.display = 'inline-flex';
+                hearingTestToggle.innerHTML = '<i class="fas fa-headphones"></i> Hearing Test';
+            }
+            localStorage.setItem('hearingTestMode', hearingTest);
+        }
+
+        function displayLeaderboard(results) {
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            leaderboardContent.innerHTML = `
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>No. of Unique Sentences</th>
+                            <th>Overall Score</th>
+                            <th>Reading Score</th>
+                            <th>Listening Score</th>
+                            <th>Top 5 Mispronunciations</th>
+                            <th>Top 5 Best Words</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            `;
+
+            const tbody = leaderboardContent.querySelector('tbody');
+
+            const sortedResults = Object.entries(results).sort((a, b) => b[1].totalScore - a[1].totalScore);
+
+            sortedResults.forEach(([name, data], index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${name}</td>
+                    <td>${data.uniqueSentenceCount}</td>
+                    <td>${(data.totalScore || 0).toFixed(2)}</td>
+                    <td>${(data.readingScore || 0).toFixed(2)}</td>
+                    <td>${(data.listeningScore || 0).toFixed(2)}</td>
+                    <td>${data.mispronouncedWords.join(', ')}</td>
+                    <td>${data.bestWords.join(', ')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+
+</html>
