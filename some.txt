@@ -5,8 +5,7 @@ Things to implement in accent scoring and testing system
 
 8. sentence scoring -
 
-9. Database => personal database
-
+remove unacceptable characters
 
 
 

@@ -343,6 +343,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            cursor: pointer;
         }
 
         .leaderboard-table th {
@@ -356,6 +357,47 @@
 
         .leaderboard-table tr:hover {
             background-color: #ddd;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 10px;
+        }
+
+        .recommendation-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .recommendation-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .recommendation-section p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .recommendation-section button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .recommendation-section button:hover {
+            background-color: #45a049;
         }
 
         @media (max-width: 1024px) {
@@ -500,6 +542,45 @@
             color: #4CAF50;
             margin-right: 10px;
         }
+
+        .category-container {
+            margin-bottom: 20px;
+        }
+
+        .category-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .word-list {
+            margin-bottom: 10px;
+        }
+
+        .practice-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .practice-button:hover {
+            background-color: #45a049;
+        }
+
+        .sentence-score {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -543,6 +624,7 @@
         </form>
         <div id="waveform"></div>
         <div id="result"></div>
+        <div id="sentenceScore" class="sentence-score"></div>
     </main>
 
     <!-- Modal for Segment Scores -->
@@ -555,14 +637,8 @@
                     <tr>
                         <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">
                             Segment</th>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Start
-                            Time (s)</th>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">End
-                            Time (s)</th>
                         <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Score
                         </th>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Log
-                            Likelihood</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -577,7 +653,28 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>Recommendations</h2>
-            <div id="recommendationsContent"></div>
+            <div class="recommendations-grid">
+                <div class="recommendation-section" id="veryBadSection">
+                    <h3>Very Bad</h3>
+                    <p id="veryBadWords"></p>
+                    <button onclick="practiceNow('veryBad')">Practice Now</button>
+                </div>
+                <div class="recommendation-section" id="needToImproveSection">
+                    <h3>Need to Improve</h3>
+                    <p id="needToImproveWords"></p>
+                    <button onclick="practiceNow('needToImprove')">Practice Now</button>
+                </div>
+                <div class="recommendation-section" id="goodSection">
+                    <h3>Good</h3>
+                    <p id="goodWords"></p>
+                    <button onclick="practiceNow('good')">Practice Now</button>
+                </div>
+                <div class="recommendation-section" id="excellentSection">
+                    <h3>Excellent</h3>
+                    <p id="excellentWords"></p>
+                    <button onclick="practiceNow('excellent')">Practice Now</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -586,9 +683,11 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>About This Project</h2>
-            <p>This project is designed to help users test their pronunciation by recording their speech and comparing
-                it to the provided text. It uses advanced speech recognition technology to evaluate pronunciation
-                accuracy and provide feedback in the form of word and segment scores.</p>
+            <p>This project is designed to help users test and train their pronunciation and Accent by recording their
+                speech and comparing
+                it to the provided text. It uses advanced speech recognition technology to evaluate pronunciation and
+                Accent
+                accuracy and provide feedback in the form of word and alphabet scores.</p>
             <h3>How to Use</h3>
             <ol class="about-list">
                 <li><i class="fas fa-keyboard"></i> Enter the text you want to pronounce in the input field.</li>
@@ -629,6 +728,8 @@
     </footer>
 
     <script>
+        const allowedCharacters = new Set(['-', '|', 'E', 'T', 'A', 'O', 'N', 'I', 'H', 'S', 'R', 'D', 'L', 'U', 'M', 'W', 'C', 'F', 'G', 'Y', 'P', 'B', 'V', 'K', "'", 'X', 'J', 'Q', 'Z', " "]);
+
         const sentences = {
             Beginner: [
                 "a b c d e f g h i j k l m n o p q r s t u v w x y z",
@@ -678,7 +779,7 @@
             }
 
             // Load saved name from localStorage
-            const savedName = localStorage.getItem('userName') || '';
+            const savedName = localStorage.getItem('userName') || 'user';
             document.getElementById('userName').value = savedName;
         });
 
@@ -696,7 +797,7 @@
         });
 
         document.getElementById('userName').addEventListener('input', function () {
-            const userName = document.getElementById('userName').value.trim();
+            const userName = document.getElementById('userName').value.trim() || 'user';
             localStorage.setItem('userName', userName);
         });
 
@@ -714,6 +815,7 @@
         const aboutBtn = document.getElementById('aboutBtn');
         const aboutModal = document.getElementById('aboutModal');
         const modalClose = document.querySelectorAll('.modal-close');
+        const sentenceScoreDiv = document.getElementById('sentenceScore');
 
         let mediaRecorder;
         let audioChunks = [];
@@ -723,7 +825,12 @@
         let hearingTest = false;
 
         textInput.addEventListener('input', function () {
-            textInput.value = textInput.value.toUpperCase();
+            textInput.value = textInput.value
+                .toUpperCase()
+                .split('')
+                .filter(char => allowedCharacters.has(char))
+                .join('');
+
             if (textInput.value.trim() !== '') {
                 ttsButton.disabled = false;
             } else {
@@ -822,11 +929,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    const userName = localStorage.getItem('userName');
-                    if (!userName) {
-                        alert('Please enter your name.');
-                        return;
-                    }
+                    let userName = localStorage.getItem('userName') || 'user';
 
                     // Process the result as before
                     resultDiv.innerHTML = '';
@@ -891,45 +994,58 @@
                         updateWordPerformance(item.word.toLowerCase(), classification);
                     });
 
-                    const readingScore = totalReadingScore / totalWordCount;
-                    const listeningScore = totalListeningScore / totalWordCount;
+                    // Use the sentence score from the data for updating scores
+                    const sentenceScore = parseFloat(data.sentence_score);
+                    const readingScore = sentenceScore; // Assume this test is for reading
+                    const listeningScore = sentenceScore; // Assume this test is for listening
 
                     data.segments.forEach(segment => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td style="border: 1px solid #ddd; padding: 8px;">${segment.label}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.start_time}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.end_time}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${segment.score}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.log_likelihood}</td>
                         `;
                         segmentScoresBody.appendChild(row);
                     });
 
                     resultDiv.style.display = 'flex';
 
-                    savePerformanceData(userName, performanceData, uniqueSentences.size, readingScore, listeningScore);
+                    const mode = hearingTest ? 'listening' : 'reading';
+                    savePerformanceData(userName, performanceData, uniqueSentences.size, sentenceScore, mode);
+
+                    // Display sentence score
+                    sentenceScoreDiv.innerHTML = `Overall Score: ${data.sentence_score}`;
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
         }
 
-        function savePerformanceData(userName, performanceData, uniqueSentenceCount, newReadingScore, newListeningScore) {
+        function savePerformanceData(userName, performanceData, uniqueSentenceCount, sentenceScore, mode) {
             let results = JSON.parse(localStorage.getItem('results')) || {};
 
             if (results[userName]) {
-                const currentReadingScore = results[userName].readingScore * results[userName].uniqueSentenceCount;
-                const currentListeningScore = results[userName].listeningScore * results[userName].uniqueSentenceCount;
-
-                results[userName].readingScore = (currentReadingScore + newReadingScore * uniqueSentenceCount) / (results[userName].uniqueSentenceCount + uniqueSentenceCount);
-                results[userName].listeningScore = (currentListeningScore + newListeningScore * uniqueSentenceCount) / (results[userName].uniqueSentenceCount + uniqueSentenceCount);
-                results[userName].uniqueSentenceCount += uniqueSentenceCount;
+                if (mode === 'reading') {
+                    if (results[userName].uniqueReadingCount === 0) {
+                        results[userName].readingScore = sentenceScore;
+                    } else {
+                        results[userName].readingScore = (results[userName].readingScore * results[userName].uniqueReadingCount + sentenceScore) / (results[userName].uniqueReadingCount + 1);
+                    }
+                    results[userName].uniqueReadingCount += 1;
+                } else {
+                    if (results[userName].uniqueListeningCount === 0) {
+                        results[userName].listeningScore = sentenceScore;
+                    } else {
+                        results[userName].listeningScore = (results[userName].listeningScore * results[userName].uniqueListeningCount + sentenceScore) / (results[userName].uniqueListeningCount + 1);
+                    }
+                    results[userName].uniqueListeningCount += 1;
+                }
             } else {
                 results[userName] = {
-                    readingScore: newReadingScore,
-                    listeningScore: newListeningScore,
-                    uniqueSentenceCount: uniqueSentenceCount,
+                    readingScore: mode === 'reading' ? sentenceScore : 0,
+                    listeningScore: mode === 'listening' ? sentenceScore : 0,
+                    uniqueReadingCount: mode === 'reading' ? 1 : 0,
+                    uniqueListeningCount: mode === 'listening' ? 1 : 0,
                     mispronouncedWords: [],
                     bestWords: []
                 };
@@ -985,73 +1101,52 @@
 
         function provideRecommendations() {
             const poorlyPerformedWords = getPoorlyPerformedWords();
-            const recommendationsContent = document.getElementById('recommendationsContent');
-            recommendationsContent.innerHTML = '';
-
-            const categorizedWords = {
-                'Very Bad': [],
-                'Need to Improve': [],
-                'Good': [],
-                'Excellent': []
-            };
-
             const words = document.querySelectorAll('.word');
+            const veryBadWords = [];
+            const needToImproveWords = [];
+            const goodWords = [];
+            const excellentWords = [];
+
             words.forEach(word => {
                 const wordText = word.querySelector('.left-half').innerText.split(' ')[0];
                 if (word.classList.contains('red')) {
-                    categorizedWords['Very Bad'].push(wordText);
+                    veryBadWords.push(wordText);
                 } else if (word.classList.contains('orange')) {
-                    categorizedWords['Need to Improve'].push(wordText);
+                    needToImproveWords.push(wordText);
                 } else if (word.classList.contains('blue')) {
-                    categorizedWords['Good'].push(wordText);
+                    goodWords.push(wordText);
                 } else if (word.classList.contains('green')) {
-                    categorizedWords['Excellent'].push(wordText);
+                    excellentWords.push(wordText);
                 }
             });
 
-            function addCategoryToContainer(category, words) {
-                const wordList = words.join('<br>');
-                const categoryContainer = document.createElement('div');
-                categoryContainer.classList.add('category-container');
-
-                categoryContainer.innerHTML = `
-                    <div class="category-title">${category}</div>
-                    <div class="word-list">${wordList}</div>
-                    <button class="practice-button" onclick="practiceCategory('${category}')">Practice Now</button>
-                `;
-
-                recommendationsContent.appendChild(categoryContainer);
-            }
-
-            addCategoryToContainer('Very Bad', categorizedWords['Very Bad']);
-            addCategoryToContainer('Need to Improve', categorizedWords['Need to Improve']);
-            addCategoryToContainer('Good', categorizedWords['Good']);
-            addCategoryToContainer('Excellent', categorizedWords['Excellent']);
+            document.getElementById('veryBadWords').innerText = veryBadWords.join(' ');
+            document.getElementById('needToImproveWords').innerText = needToImproveWords.join(' ');
+            document.getElementById('goodWords').innerText = goodWords.join(' ');
+            document.getElementById('excellentWords').innerText = excellentWords.join(' ');
         }
 
-        function practiceCategory(category) {
-            const poorlyPerformedWords = getPoorlyPerformedWords();
-            const wordsToPractice = Object.keys(poorlyPerformedWords).filter(word => {
-                const count = poorlyPerformedWords[word].count;
-                const classification = classifyPerformance(count / 10, count / 10);
-                return getCategoryByClass(classification) === category;
-            }).join(' ');
+        function practiceNow(category) {
+            const textInput = document.getElementById('text');
+            let wordsToPractice = '';
 
-            if (wordsToPractice) {
-                document.getElementById('text').value = wordsToPractice.toUpperCase();
+            switch (category) {
+                case 'veryBad':
+                    wordsToPractice = document.getElementById('veryBadWords').innerText;
+                    break;
+                case 'needToImprove':
+                    wordsToPractice = document.getElementById('needToImproveWords').innerText;
+                    break;
+                case 'good':
+                    wordsToPractice = document.getElementById('goodWords').innerText;
+                    break;
+                case 'excellent':
+                    wordsToPractice = document.getElementById('excellentWords').innerText;
+                    break;
             }
 
+            textInput.value = wordsToPractice.toUpperCase();
             document.getElementById('recommendationsModal').style.display = 'none';
-        }
-
-        function getCategoryByClass(classification) {
-            const categories = {
-                'red': 'Very Bad',
-                'orange': 'Need to Improve',
-                'blue': 'Good',
-                'green': 'Excellent'
-            };
-            return categories[classification];
         }
 
         document.getElementById('recommendationsBtn').addEventListener('click', function () {
@@ -1168,14 +1263,15 @@
                 <table class="leaderboard-table">
                     <thead>
                         <tr>
-                            <th>Rank</th>
-                            <th>Name</th>
-                            <th>No. of Unique Sentences</th>
-                            <th>Overall Score</th>
-                            <th>Reading Score</th>
-                            <th>Listening Score</th>
-                            <th>Top 5 Mispronunciations</th>
-                            <th>Top 5 Best Words</th>
+                            <th onclick="sortTable(0)">Rank</th>
+                            <th onclick="sortTable(1)">Name</th>
+                            <th onclick="sortTable(2)">No. of Unique Readings</th>
+                            <th onclick="sortTable(3)">No. of Unique Listening</th>
+                            <th onclick="sortTable(4)">Overall Score</th>
+                            <th onclick="sortTable(5)">Reading Score</th>
+                            <th onclick="sortTable(6)">Listening Score</th>
+                            <th onclick="sortTable(7)">Top 5 Mispronunciations</th>
+                            <th onclick="sortTable(8)">Top 5 Best Words</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -1191,7 +1287,8 @@
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${name}</td>
-                    <td>${data.uniqueSentenceCount}</td>
+                    <td>${data.uniqueReadingCount}</td>
+                    <td>${data.uniqueListeningCount}</td>
                     <td>${(data.totalScore || 0).toFixed(2)}</td>
                     <td>${(data.readingScore || 0).toFixed(2)}</td>
                     <td>${(data.listeningScore || 0).toFixed(2)}</td>
@@ -1200,6 +1297,48 @@
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        function sortTable(n) {
+            const table = document.querySelector(".leaderboard-table");
+            const rows = table.rows;
+            const switching = true;
+            let shouldSwitch;
+            let i;
+            let x;
+            let y;
+            let switchcount = 0;
+            let dir = "asc";
+            while (switching) {
+                switching = false;
+                const rowsArray = Array.from(rows).slice(1);
+                for (i = 0; i < (rowsArray.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rowsArray[i].getElementsByTagName("TD")[n];
+                    y = rowsArray[i + 1].getElementsByTagName("TD")[n];
+                    if (dir === "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir === "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rowsArray[i].parentNode.insertBefore(rowsArray[i + 1], rowsArray[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount === 0 && dir === "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
         }
     </script>
 </body>

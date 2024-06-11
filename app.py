@@ -5,12 +5,16 @@ import math
 from flask import Flask, render_template, request, jsonify
 import base64
 import io
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
 model = bundle.get_model().to(device)
 labels = bundle.get_labels()
+
+
 
 app = Flask(__name__, static_folder='static')
 
@@ -157,6 +161,12 @@ def format_sentence(sentence):
 def index():
     return render_template('index.html')
 
+def merge_sentence(word_segments):
+    sentence_score = sum(word.score * word.num_frames for word in word_segments) / sum(word.num_frames for word in word_segments)
+    sentence_log_likelihood = sum(word.log_likelihood for word in word_segments)
+    sentence = "".join([word.label for word in word_segments])
+    return sentence, sentence_score, sentence_log_likelihood
+
 @app.route('/process', methods=['POST'])
 def process():
     audio_data = request.form['audio']
@@ -184,10 +194,14 @@ def process():
     path = backtrack(trellis, emission, tokens)
     segments = merge_repeats(path)
     word_segments = merge_words(segments)
+    sentence, sentence_score, sentence_log_likelihood = merge_sentence(word_segments)
 
     results = {
         'word_segments': [],
-        'segments': []
+        'segments': [],
+        'sentence': sentence,
+        'sentence_score': f'{sentence_score:.2f}',
+        'sentence_log_likelihood': f'{sentence_log_likelihood:.2f}'
     }
 
     for i in range(len(word_segments)):
