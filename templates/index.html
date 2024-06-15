@@ -6,11 +6,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>[24]7.ai - Accent Trainer</title>
     <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/introjs.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.2.2/intro.min.js"></script>
     <style>
+        :root {
+            --background-color: #f4f4f9;
+            --text-color: #333;
+            --header-background-color: #4CAF50;
+            --nav-background-color: #333;
+            --nav-text-color: #fff;
+            --nav-hover-color: #575757;
+            --button-background-color: #4CAF50;
+            --button-hover-color: #45a049;
+            --modal-background-color: #fff;
+            --modal-content-background-color: #fff;
+            --footer-background-color: #333;
+            --footer-text-color: #fff;
+            --dashboard-background-color: #fff;
+            --dashboard-border-color: #ddd;
+            --tutorial-background-color: rgba(0, 0, 0, 0.8);
+            --tutorial-text-color: #fff;
+            --tutorial-border-color: #4CAF50;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1e1e1e;
+            --text-color: #ccc;
+            --header-background-color: #333;
+            --nav-background-color: #000;
+            --nav-text-color: #ccc;
+            --nav-hover-color: #575757;
+            --button-background-color: #555;
+            --button-hover-color: #444;
+            --modal-background-color: #444;
+            --modal-content-background-color: #444;
+            --footer-background-color: #000;
+            --footer-text-color: #ccc;
+            --dashboard-background-color: #444;
+            --dashboard-border-color: #555;
+            --tutorial-background-color: rgba(255, 255, 255, 0.8);
+            --tutorial-text-color: #000;
+            --tutorial-border-color: #333;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            background-color: var(--background-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             display: flex;
@@ -19,7 +63,7 @@
         }
 
         header {
-            background-color: #4CAF50;
+            background-color: var(--header-background-color);
             color: white;
             padding: 10px 0;
             text-align: center;
@@ -27,8 +71,8 @@
         }
 
         nav {
-            background-color: #333;
-            color: white;
+            background-color: var(--nav-background-color);
+            color: var(--nav-text-color);
             width: 250px;
             height: 100vh;
             display: flex;
@@ -49,7 +93,7 @@
         nav a,
         nav .icon-btn,
         nav .leaderboard-btn {
-            color: white;
+            color: var(--nav-text-color);
             padding: 15px 20px;
             text-decoration: none;
             text-align: center;
@@ -63,7 +107,7 @@
         nav a:hover,
         nav .icon-btn:hover,
         nav .leaderboard-btn:hover {
-            background-color: #575757;
+            background-color: var(--nav-hover-color);
         }
 
         nav .icon {
@@ -72,7 +116,7 @@
         }
 
         nav .small-button {
-            background-color: #4CAF50;
+            background-color: var(--button-background-color);
             color: white;
             padding: 5px 10px;
             border: none;
@@ -89,7 +133,7 @@
         }
 
         nav .small-button:hover {
-            background-color: #45a049;
+            background-color: var(--button-hover-color);
         }
 
         nav select,
@@ -99,7 +143,7 @@
             margin: 15px 0;
             border: none;
             border-radius: 5px;
-            background-color: #575757;
+            background-color: var(--nav-hover-color);
             color: white;
             font-size: 16px;
             cursor: pointer;
@@ -110,7 +154,7 @@
         nav select:focus,
         nav input[type="text"]:hover,
         nav input[type="text"]:focus {
-            background-color: #4CAF50;
+            background-color: var(--button-background-color);
             outline: none;
         }
 
@@ -139,7 +183,7 @@
             max-width: 100%;
             margin: 20px auto;
             padding: 30px;
-            background-color: #fff;
+            background-color: var(--modal-background-color);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -151,7 +195,7 @@
             display: block;
             margin-bottom: 10px;
             font-weight: bold;
-            color: #333;
+            color: var(--text-color);
         }
 
         textarea {
@@ -175,7 +219,7 @@
         }
 
         button {
-            background-color: #4CAF50;
+            background-color: var(--button-background-color);
             color: #fff;
             padding: 12px 24px;
             border: none;
@@ -193,7 +237,7 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: var(--button-hover-color);
         }
 
         button:disabled {
@@ -289,6 +333,38 @@
             color: #ddd;
         }
 
+        .toggle-dark-mode {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .toggle-dark-mode:hover {
+            color: #ddd;
+        }
+
+        .help-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .help-button:hover {
+            color: #ddd;
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -305,7 +381,7 @@
         }
 
         .modal-content {
-            background-color: #fff;
+            background-color: var(--modal-content-background-color);
             padding: 20px;
             border-radius: 10px;
             width: 90%;
@@ -316,13 +392,44 @@
             max-height: 80%;
         }
 
+        .modal-content h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .modal-content th,
+        .modal-content td {
+            border: 1px solid var(--dashboard-border-color);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .modal-content th {
+            background-color: var(--button-background-color);
+            color: white;
+            cursor: pointer;
+        }
+
+        .modal-content tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .modal-content tbody tr:hover {
+            background-color: #ddd;
+        }
+
         .modal-close {
             position: absolute;
             top: 10px;
             right: 10px;
             cursor: pointer;
             font-size: 18px;
-            color: #555;
+            color: var(--text-color);
         }
 
         .modal-close:hover {
@@ -333,32 +440,6 @@
             margin-top: 10px;
         }
 
-        .leaderboard-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .leaderboard-table th,
-        .leaderboard-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .leaderboard-table th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .leaderboard-table tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        .leaderboard-table tr:hover {
-            background-color: #ddd;
-        }
-
         .recommendations-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -367,7 +448,7 @@
         }
 
         .recommendation-section {
-            border: 1px solid #ddd;
+            border: 1px solid var(--dashboard-border-color);
             border-radius: 5px;
             padding: 10px;
             text-align: center;
@@ -376,7 +457,7 @@
         .recommendation-section h3 {
             margin: 0 0 10px 0;
             font-size: 18px;
-            color: #333;
+            color: var(--text-color);
         }
 
         .recommendation-section p {
@@ -386,7 +467,7 @@
         }
 
         .recommendation-section button {
-            background-color: #4CAF50;
+            background-color: var(--button-background-color);
             color: white;
             padding: 5px 10px;
             border: none;
@@ -397,7 +478,7 @@
         }
 
         .recommendation-section button:hover {
-            background-color: #45a049;
+            background-color: var(--button-hover-color);
         }
 
         @media (max-width: 1024px) {
@@ -488,8 +569,8 @@
 
         /* Footer */
         footer {
-            background-color: #333;
-            color: white;
+            background-color: var(--footer-background-color);
+            color: var(--footer-text-color);
             padding: 5px 10px;
             text-align: center;
             width: 100%;
@@ -557,7 +638,7 @@
         }
 
         .practice-button {
-            background-color: #4CAF50;
+            background-color: var(--button-background-color);
             color: white;
             padding: 5px 10px;
             border: none;
@@ -567,64 +648,219 @@
         }
 
         .practice-button:hover {
-            background-color: #45a049;
+            background-color: var(--button-hover-color);
         }
 
-        .sentence-score {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e0e0e0;
+        #dashboard {
+            margin: 20px auto;
+            background-color: var(--dashboard-background-color);
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            border: 1px solid var(--dashboard-border-color);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        #dashboardChart {
+            width: 100%;
+            height: 400px;
+        }
+
+        /* Character animation styles */
+        .character {
+            width: 200px;
+            height: 200px;
+            position: fixed;
+            bottom: -250px;
+            /* Initially off-screen */
+            right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+            transition: bottom 1s ease-in-out;
+            z-index: 1002;
+            /* Ensure it appears above other elements */
+        }
+
+        .character.show {
+            bottom: 20px;
+            /* Slide in to this position */
+        }
+
+        .character.hide {
+            bottom: -250px;
+            /* Slide out to this position */
+        }
+
+        .character-content {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .character-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        /* Tutorial Styling */
+        .introjs-tooltip {
+            background-color: var(--tutorial-background-color) !important;
+            color: var(--tutorial-text-color) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            border: 2px solid var(--tutorial-border-color) !important;
+            padding: 20px !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        }
+
+        .introjs-tooltip-title {
+            font-size: 20px !important;
+            font-weight: bold !important;
+            margin-bottom: 15px !important;
+            color: #fff !important;
+        }
+
+        .introjs-tooltiptext {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+
+        .introjs-helperLayer {
+            background-color: rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .introjs-overlay {
+            background-color: rgba(0, 0, 0, 0.7) !important;
+        }
+
+        .introjs-button {
+            background-color: var(--button-background-color) !important;
+            color: #fff !important;
+            border-radius: 5px !important;
+            padding: 10px 20px !important;
+            cursor: pointer !important;
+            transition: background-color 0.3s !important;
+            font-size: 14px !important;
+        }
+
+        .introjs-button:hover {
+            background-color: var(--button-hover-color) !important;
+        }
+
+        .introjs-prevbutton,
+        .introjs-skipbutton {
+            background-color: #ccc !important;
+            color: #000 !important;
+        }
+
+        .introjs-prevbutton:hover,
+        .introjs-skipbutton:hover {
+            background-color: #bbb !important;
         }
     </style>
 </head>
 
 <body>
-    <header>
+    <header data-step="2" data-intro="Welcome to the Accent Trainer! This is the header.">
         <h1>[24]7.ai - Test Your Pronunciation Here</h1>
     </header>
-    <nav class="hidden">
-        <i class="fas fa-info-circle icon" id="aboutBtn"></i>
-        <a href="#">About</a>
+    <nav class="hidden" data-step="3" data-intro="This is the navigation bar where you can find various options.">
+        <i class="fas fa-info-circle icon" id="aboutBtn" data-step="4"
+            data-intro="Click here to learn about the application."></i>
+        <a href="#" data-step="5" data-intro="This link takes you to the About section.">About</a>
         <i class="fas fa-upload icon">
             <input type="file" id="upload" accept=".wav" style="display:none;">
         </i>
-        <a href="#" onclick="document.getElementById('upload').click();">Upload Audio</a>
-        <div class="icon-btn" id="segmentScoresBtn"><i class="fas fa-chart-bar"></i></div>
-        <div class="icon-btn" id="recommendationsBtn"><i class="fas fa-lightbulb"></i></div>
-        <button class="small-button" id="clearStorage"><i class="fas fa-trash-alt"></i> Clear All Data</button>
-        <button class="small-button" id="hearingTestToggle"><i class="fas fa-headphones"></i> Hearing Test</button>
-        <label for="level" style="color:white; margin-top: 15px;">Choose Level:</label>
+        <a href="#" onclick="document.getElementById('upload').click();" data-step="6"
+            data-intro="Upload your audio files here.">Upload Audio</a>
+        <div class="icon-btn" id="segmentScoresBtn" data-step="7"
+            data-intro="View your segment scores by clicking here."><i class="fas fa-chart-bar"></i></div>
+        <div class="icon-btn" id="recommendationsBtn" data-step="8"
+            data-intro="Get recommendations for improvement here."><i class="fas fa-lightbulb"></i></div>
+        <button class="small-button" id="clearStorage" data-step="9" data-intro="Click here to clear all data."><i
+                class="fas fa-trash-alt"></i> Clear All Data</button>
+        <button class="small-button" id="hearingTestToggle" data-step="10"
+            data-intro="Toggle hearing test mode here."><i class="fas fa-headphones"></i> Hearing Test</button>
+        <label for="level" style="color:white; margin-top: 15px;" data-step="11"
+            data-intro="Choose your level here.">Choose Level:</label>
         <select id="level">
             <option value="Beginner">Beginner</option>
             <option value="Advanced">Advanced</option>
             <option value="Professional">Professional</option>
             <option value="Mixed">Mixed</option>
         </select>
-        <label for="userName" style="color:white; margin-top: 15px;">Your Name:</label>
+        <label for="userName" style="color:white; margin-top: 15px;" data-step="12"
+            data-intro="Enter your name here.">Your Name:</label>
         <input type="text" id="userName" placeholder="Enter your name"
             style="padding: 10px; width: 80%; border-radius: 5px; margin-top: 10px;">
-        <button class="leaderboard-btn" id="leaderboardBtn"><i class="fas fa-trophy"></i> Leaderboard</button>
+        <button class="leaderboard-btn" id="leaderboardBtn" data-step="13" data-intro="View the leaderboard here."><i
+                class="fas fa-trophy"></i> Leaderboard</button>
+        <button class="small-button" id="dashboardBtn" data-step="14" data-intro="View your progress dashboard here."><i
+                class="fas fa-chart-line"></i> Dashboard</button>
     </nav>
     <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
-    <main class="full-width">
+    <button class="toggle-dark-mode" id="toggleDarkMode" style="position: fixed; top: 10px; right: 10px;"><i
+            class="fas fa-moon"></i></button>
+    <button class="help-button" id="helpBtn" data-step="1" data-intro="Click here anytime for help."><i
+            class="fas fa-question-circle"></i></button>
+    <main class="full-width" data-step="15" data-intro="This is the main area where you interact with the application.">
         <form id="form">
-            <textarea id="text" name="text" placeholder="Enter Your Text Here..." required></textarea>
+            <textarea id="text" name="text" placeholder="Enter Your Text Here..." required data-step="16"
+                data-intro="Enter the text you want to pronounce here."></textarea>
             <input type="hidden" id="audio" name="audio">
             <div class="button-group">
-                <button type="button" id="record"><i class="fas fa-microphone"></i>Start Recording</button>
-                <button type="button" id="play" disabled><i class="fas fa-play"></i>Play Audio</button>
-                <button type="button" id="tts"><i class="fas fa-volume-up"></i>Play Actual</button>
+                <button type="button" id="record" data-step="17"
+                    data-intro="Click here to start recording your pronunciation."><i class="fas fa-microphone"></i>
+                    Start Recording</button>
+                <button type="button" id="play" disabled data-step="18"
+                    data-intro="Click here to play back your recording."><i class="fas fa-play"></i> Play Audio</button>
+                <button type="button" id="tts" data-step="19"
+                    data-intro="Click here to hear the correct pronunciation."><i class="fas fa-volume-up"></i> Play
+                    Actual</button>
             </div>
         </form>
-        <div id="waveform"></div>
-        <div id="result"></div>
-        <div id="sentenceScore" class="sentence-score"></div>
+        <div id="waveform" data-step="20" data-intro="This area displays the waveform of your recording."></div>
+        <div id="result" data-step="21" data-intro="Here you will see the results of your pronunciation analysis.">
+        </div>
+        <div id="dashboard" data-step="22" data-intro="This is your progress dashboard.">
+            <div class="dashboard-header">
+                <h2>Progress Dashboard</h2>
+                <button class="small-button" id="closeDashboard"><i class="fas fa-times"></i> Close</button>
+            </div>
+            <canvas id="dashboardChart"></canvas>
+        </div>
+        <!-- Character for giving score -->
+        <div id="character" class="character">
+            <div class="character-content">
+                <img src="static/character-image.png" alt="Character" class="character-image">
+                <div id="characterScore" class="character-text"></div>
+            </div>
+        </div>
     </main>
 
     <!-- Modal for Segment Scores -->
@@ -632,13 +868,11 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>Segment Scores</h2>
-            <table id="segmentScores" style="width: 100%; border-collapse: collapse;">
+            <table id="segmentScores">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">
-                            Segment</th>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Score
-                        </th>
+                        <th>Segment</th>
+                        <th>Score</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -728,7 +962,7 @@
     </footer>
 
     <script>
-        const allowedCharacters = new Set(['-', '|', 'E', 'T', 'A', 'O', 'N', 'I', 'H', 'S', 'R', 'D', 'L', 'U', 'M', 'W', 'C', 'F', 'G', 'Y', 'P', 'B', 'V', 'K', "'", 'X', 'J', 'Q', 'Z', " "]);
+        const allowedCharacters = new Set(['-', '|', 'E', 'T', 'A', 'O', 'N', 'I', 'H', 'S', 'R', 'D', 'L', 'U', 'M', 'W', 'C', 'F', 'G', 'Y', 'P', 'B', 'V', 'K', "'", 'X', 'J', 'Q', 'Z']);
 
         const sentences = {
             Beginner: [
@@ -781,7 +1015,123 @@
             // Load saved name from localStorage
             const savedName = localStorage.getItem('userName') || 'user';
             document.getElementById('userName').value = savedName;
+
+            // Restore dark mode preference from localStorage
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            setDarkMode(darkMode);
+
+            if (!localStorage.getItem('tutorialShown')) {
+                startTutorial();
+                localStorage.setItem('tutorialShown', 'true');
+            }
         });
+
+        function startTutorial() {
+            introJs().setOptions({
+                steps: [
+                    {
+                        intro: "Welcome to the Accent Trainer! Let's take a quick tour of the features."
+                    },
+                    {
+                        element: 'header',
+                        intro: "This is the header where you can find the title of the application."
+                    },
+                    {
+                        element: 'nav',
+                        intro: "This is the navigation bar where you can find various options."
+                    },
+                    {
+                        element: '#aboutBtn',
+                        intro: "Click here to learn about the application."
+                    },
+                    {
+                        element: 'a[href="#"]',
+                        intro: "This link takes you to the About section."
+                    },
+                    {
+                        element: '#upload',
+                        intro: "Upload your audio files here."
+                    },
+                    {
+                        element: '#segmentScoresBtn',
+                        intro: "View your segment scores by clicking here."
+                    },
+                    {
+                        element: '#recommendationsBtn',
+                        intro: "Get recommendations for improvement here."
+                    },
+                    {
+                        element: '#clearStorage',
+                        intro: "Click here to clear all data."
+                    },
+                    {
+                        element: '#hearingTestToggle',
+                        intro: "Toggle hearing test mode here."
+                    },
+                    {
+                        element: '#level',
+                        intro: "Choose your level here."
+                    },
+                    {
+                        element: '#userName',
+                        intro: "Enter your name here."
+                    },
+                    {
+                        element: '#leaderboardBtn',
+                        intro: "View the leaderboard here."
+                    },
+                    {
+                        element: '#dashboardBtn',
+                        intro: "View your progress dashboard here."
+                    },
+                    {
+                        element: 'main',
+                        intro: "This is the main area where you interact with the application."
+                    },
+                    {
+                        element: '#text',
+                        intro: "Enter the text you want to pronounce here."
+                    },
+                    {
+                        element: '#record',
+                        intro: "Click here to start recording your pronunciation."
+                    },
+                    {
+                        element: '#play',
+                        intro: "Click here to play back your recording."
+                    },
+                    {
+                        element: '#tts',
+                        intro: "Click here to hear the correct pronunciation."
+                    },
+                    {
+                        element: '#waveform',
+                        intro: "This area displays the waveform of your recording."
+                    },
+                    {
+                        element: '#result',
+                        intro: "Here you will see the results of your pronunciation analysis."
+                    },
+                    {
+                        element: '#dashboard',
+                        intro: "This is your progress dashboard."
+                    },
+                    {
+                        element: '.help-button',
+                        intro: "Click here anytime for help."
+                    }
+                ],
+                showProgress: true,
+                showBullets: false,
+                showStepNumbers: true,
+                exitOnOverlayClick: false,
+                exitOnEsc: false,
+                nextLabel: 'Next',
+                prevLabel: 'Previous',
+                skipLabel: 'Skip',
+                doneLabel: 'Done'
+            }).start();
+        }
 
         function getRandomSentence(level) {
             const sentencesForLevel = sentences[level];
@@ -811,11 +1161,15 @@
         const segmentScoresBtn = document.getElementById('segmentScoresBtn');
         const recommendationsBtn = document.getElementById('recommendationsBtn');
         const leaderboardBtn = document.getElementById('leaderboardBtn');
+        const dashboardBtn = document.getElementById('dashboardBtn');
         const leaderboardModal = document.getElementById('leaderboardModal');
         const aboutBtn = document.getElementById('aboutBtn');
         const aboutModal = document.getElementById('aboutModal');
         const modalClose = document.querySelectorAll('.modal-close');
-        const sentenceScoreDiv = document.getElementById('sentenceScore');
+        const toggleDarkModeBtn = document.getElementById('toggleDarkMode');
+        const dashboard = document.getElementById('dashboard');
+        const closeDashboardBtn = document.getElementById('closeDashboard');
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
 
         let mediaRecorder;
         let audioChunks = [];
@@ -823,6 +1177,7 @@
         let audioContext;
         let audioBuffer;
         let hearingTest = false;
+        let chartInstance;
 
         textInput.addEventListener('input', function () {
             textInput.value = textInput.value
@@ -904,7 +1259,12 @@
         });
 
         function classifyPerformance(score, log_likelihood) {
-            const categories = { "green": 5, "blue": 4, "orange": 3, "red": 2 };
+            const categories = {
+                "green": 5,
+                "blue": 4,
+                "orange": 3,
+                "red": 2
+            };
 
             let scoreClass = score > 0.95 ? "green" :
                 score > 0.85 ? "blue" :
@@ -938,9 +1298,6 @@
 
                     const performanceData = [];
                     const uniqueSentences = new Set();
-                    let totalWordCount = 0;
-                    let totalReadingScore = 0;
-                    let totalListeningScore = 0;
 
                     data.word_segments.forEach(item => {
                         uniqueSentences.add(item.sentence);
@@ -987,23 +1344,16 @@
                             log_likelihood: item.log_likelihood,
                             classification: classification
                         });
-
-                        totalWordCount++;
-                        totalReadingScore += item.score;
-                        totalListeningScore += item.log_likelihood;
-                        updateWordPerformance(item.word.toLowerCase(), classification);
                     });
 
                     // Use the sentence score from the data for updating scores
                     const sentenceScore = parseFloat(data.sentence_score);
-                    const readingScore = sentenceScore; // Assume this test is for reading
-                    const listeningScore = sentenceScore; // Assume this test is for listening
 
                     data.segments.forEach(segment => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.label}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${segment.score}</td>
+                            <td>${segment.label}</td>
+                            <td>${segment.score}</td>
                         `;
                         segmentScoresBody.appendChild(row);
                     });
@@ -1013,12 +1363,35 @@
                     const mode = hearingTest ? 'listening' : 'reading';
                     savePerformanceData(userName, performanceData, uniqueSentences.size, sentenceScore, mode);
 
-                    // Display sentence score
-                    sentenceScoreDiv.innerHTML = `Overall Score: ${data.sentence_score}`;
+                    // Show the character with the score
+                    showCharacterWithScore(sentenceScore);
+
+                    if (!localStorage.getItem('resultTutorialShown')) {
+                        startResultTutorial();
+                        localStorage.setItem('resultTutorialShown', 'true');
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
+        }
+
+        function showCharacterWithScore(score) {
+            const character = document.getElementById('character');
+            const characterScore = document.getElementById('characterScore');
+
+            // Set the score in the character
+            characterScore.innerText = `Your Score: ${score}`;
+
+            // Show the character
+            character.classList.remove('hide');
+            character.classList.add('show');
+
+            // Hide the character after a delay
+            setTimeout(() => {
+                character.classList.remove('show');
+                character.classList.add('hide');
+            }, 5000); // Adjust the delay as needed
         }
 
         function savePerformanceData(userName, performanceData, uniqueSentenceCount, sentenceScore, mode) {
@@ -1032,6 +1405,8 @@
                         results[userName].readingScore = (results[userName].readingScore * results[userName].uniqueReadingCount + sentenceScore) / (results[userName].uniqueReadingCount + 1);
                     }
                     results[userName].uniqueReadingCount += 1;
+                    results[userName].readingHistory = results[userName].readingHistory || [];
+                    results[userName].readingHistory.push(sentenceScore);
                 } else {
                     if (results[userName].uniqueListeningCount === 0) {
                         results[userName].listeningScore = sentenceScore;
@@ -1039,6 +1414,8 @@
                         results[userName].listeningScore = (results[userName].listeningScore * results[userName].uniqueListeningCount + sentenceScore) / (results[userName].uniqueListeningCount + 1);
                     }
                     results[userName].uniqueListeningCount += 1;
+                    results[userName].listeningHistory = results[userName].listeningHistory || [];
+                    results[userName].listeningHistory.push(sentenceScore);
                 }
             } else {
                 results[userName] = {
@@ -1046,6 +1423,8 @@
                     listeningScore: mode === 'listening' ? sentenceScore : 0,
                     uniqueReadingCount: mode === 'reading' ? 1 : 0,
                     uniqueListeningCount: mode === 'listening' ? 1 : 0,
+                    readingHistory: mode === 'reading' ? [sentenceScore] : [],
+                    listeningHistory: mode === 'listening' ? [sentenceScore] : [],
                     mispronouncedWords: [],
                     bestWords: []
                 };
@@ -1064,6 +1443,7 @@
             localStorage.setItem('results', JSON.stringify(results));
 
             displayLeaderboard(results);
+            updateDashboard(results, userName); // Update dashboard with new results
         }
 
         function getPerformanceData() {
@@ -1081,7 +1461,9 @@
                 if (poorlyPerformedWords[word]) {
                     poorlyPerformedWords[word].count++;
                 } else {
-                    poorlyPerformedWords[word] = { count: 1 };
+                    poorlyPerformedWords[word] = {
+                        count: 1
+                    };
                 }
             } else if (classification === 'blue') {
                 if (poorlyPerformedWords[word] && poorlyPerformedWords[word].count > 0) {
@@ -1211,6 +1593,17 @@
             leaderboardModal.style.display = 'flex';
         });
 
+        dashboardBtn.addEventListener('click', function () {
+            const results = JSON.parse(localStorage.getItem('results')) || {};
+            const userName = localStorage.getItem('userName') || 'user';
+            updateDashboard(results, userName);
+            dashboard.style.display = 'block';
+        });
+
+        closeDashboardBtn.addEventListener('click', function () {
+            dashboard.style.display = 'none';
+        });
+
         modalClose.forEach(closeBtn => {
             closeBtn.addEventListener('click', function () {
                 closeBtn.parentElement.parentElement.style.display = 'none';
@@ -1240,6 +1633,22 @@
             hearingTest = !hearingTest;
             setHearingTestMode(hearingTest);
         });
+
+        toggleDarkModeBtn.addEventListener('click', function () {
+            const darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+            setDarkMode(!darkMode);
+        });
+
+        function setDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                toggleDarkModeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                toggleDarkModeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+            localStorage.setItem('darkMode', isDark);
+        }
 
         function setHearingTestMode(isHearingTest) {
             hearingTest = isHearingTest;
@@ -1299,10 +1708,66 @@
             });
         }
 
+        function updateDashboard(results, userName) {
+            const userResults = results[userName];
+            if (!userResults) return;
+
+            const readingScores = userResults.readingHistory || [];
+            const listeningScores = userResults.listeningHistory || [];
+            const labels = [];
+
+            const maxLength = Math.max(readingScores.length, listeningScores.length);
+            for (let i = 0; i < maxLength; i++) {
+                labels.push(`Attempt ${i + 1}`);
+            }
+
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Reading Score',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    data: readingScores,
+                    fill: false,
+                },
+                {
+                    label: 'Listening Score',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    data: listeningScores,
+                    fill: false,
+                }
+                ]
+            };
+
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'User Progress Over Time'
+                        }
+                    }
+                }
+            };
+
+            if (chartInstance) {
+                chartInstance.destroy(); // Destroy the previous chart instance if it exists
+            }
+
+            chartInstance = new Chart(ctx, config); // Create a new chart instance
+        }
+
         function sortTable(n) {
             const table = document.querySelector(".leaderboard-table");
             const rows = table.rows;
-            const switching = true;
+            let switching = true;
             let shouldSwitch;
             let i;
             let x;
@@ -1312,7 +1777,8 @@
             while (switching) {
                 switching = false;
                 const rowsArray = Array.from(rows).slice(1);
-                for (i = 0; i < (rowsArray.length - 1); i++) {
+                for (i = 0;
+                    (i < (rowsArray.length - 1)); i++) {
                     shouldSwitch = false;
                     x = rowsArray[i].getElementsByTagName("TD")[n];
                     y = rowsArray[i + 1].getElementsByTagName("TD")[n];
@@ -1339,6 +1805,33 @@
                     }
                 }
             }
+        }
+
+        document.getElementById('helpBtn').addEventListener('click', function () {
+            startTutorial();
+        });
+
+        function startResultTutorial() {
+            introJs().setOptions({
+                steps: [
+                    {
+                        element: '#waveform',
+                        intro: "This area displays the waveform of your recording. You can play/pause the audio by clicking here."
+                    },
+                    {
+                        element: '#result',
+                        intro: "Here you will see the results of your pronunciation analysis. Click on a word to hear your pronunciation or the actual pronunciation."
+                    },
+                    {
+                        element: '#segmentScoresBtn',
+                        intro: "Click here to view detailed segment scores."
+                    },
+                    {
+                        element: '#recommendationsBtn',
+                        intro: "Click here to get recommendations for improvement."
+                    }
+                ]
+            }).start();
         }
     </script>
 </body>
