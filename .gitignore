@@ -1,0 +1,25 @@
+# Ignore everything
+*
+
+# Do not ignore the .gitignore file itself
+!.gitignore
+
+# Do not ignore app.py
+!app.py
+
+# Do not ignore the static directory and its contents
+!static/
+static/*
+
+# Do not ignore the templates directory and its contents
+!templates/
+templates/*
+
+# Ignore specific directories
+__pycache__/
+speech-accent-classification/
+
+# Ignore specific files
+some.txt
+recorded_audio.wav
+test.ipynb
