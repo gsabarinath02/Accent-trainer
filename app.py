@@ -6,6 +6,10 @@ from flask import Flask, render_template, request, jsonify
 import base64
 import io
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+from transformers import AutoFeatureExtractor, AutoModelForAudioClassification
+import torch.nn.functional as F
+import librosa
+import numpy as np
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -134,22 +138,22 @@ def process_audio(text, audio_file):
     segments = merge_repeats(path)
     word_segments = merge_words(segments)
 
-    with open("output.txt", "w") as f:
-        for i in range(len(word_segments)):
-            ratio = waveform.size(1) / trellis.size(0)
-            word = word_segments[i]
-            x0 = int(ratio * word.start)
+    # with open("output.txt", "w") as f:
+    #     for i in range(len(word_segments)):
+    #         ratio = waveform.size(1) / trellis.size(0)
+    #         word = word_segments[i]
+    #         x0 = int(ratio * word.start)
 
-            # Determine the end time
-            if i < len(word_segments) - 1:
-                next_word = word_segments[i + 1]
-                x1 = int(ratio * word.end)
-            else:
-                x1 = int(ratio * word.end)  # Last word segment, use its own end time
+    #         # Determine the end time
+    #         if i < len(word_segments) - 1:
+    #             next_word = word_segments[i + 1]
+    #             x1 = int(ratio * word.end)
+    #         else:
+    #             x1 = int(ratio * word.end)  # Last word segment, use its own end time
 
-            start_time = x0 / bundle.sample_rate
-            end_time = x1 / bundle.sample_rate
-            f.write(f"{word.label}\t{start_time:.3f}\t{end_time:.3f}\t{word.log_likelihood:.2f}\t{word.score:.2f}\n")
+    #         start_time = x0 / bundle.sample_rate
+    #         end_time = x1 / bundle.sample_rate
+    #         f.write(f"{word.label}\t{start_time:.3f}\t{end_time:.3f}\t{word.log_likelihood:.2f}\t{word.score:.2f}\n")
 
 def format_sentence(sentence):
     words = sentence.split()

@@ -351,7 +351,7 @@
 
         .help-button {
             position: fixed;
-            bottom: 10px;
+            bottom: 0.5px;
             right: 10px;
             background: none;
             border: none;
@@ -782,6 +782,37 @@
         .introjs-skipbutton:hover {
             background-color: #bbb !important;
         }
+
+        /* Recording Animation */
+        @keyframes recordingPulse {
+            0% {
+                transform: scale(1);
+                background-color: #FF0000;
+            }
+
+            50% {
+                transform: scale(1.1);
+                background-color: #FF4D4D;
+            }
+
+            100% {
+                transform: scale(1);
+                background-color: #FF0000;
+            }
+        }
+
+        .recording-button {
+            animation: recordingPulse 1s infinite;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .recording-button i {
+            transition: transform 0.3s;
+        }
+
+        .recording-button i.recording-icon {
+            transform: rotate(360deg);
+        }
     </style>
 </head>
 
@@ -792,20 +823,23 @@
     <nav class="hidden" data-step="3" data-intro="This is the navigation bar where you can find various options.">
         <i class="fas fa-info-circle icon" id="aboutBtn" data-step="4"
             data-intro="Click here to learn about the application."></i>
-        <a href="#" data-step="5" data-intro="This link takes you to the About section.">About</a>
+        <label style="color:white;">About</label>
         <i class="fas fa-upload icon">
             <input type="file" id="upload" accept=".wav" style="display:none;">
         </i>
-        <a href="#" onclick="document.getElementById('upload').click();" data-step="6"
-            data-intro="Upload your audio files here.">Upload Audio</a>
+        <label style="color:white;" onclick="document.getElementById('upload').click();">Upload Audio</label>
         <div class="icon-btn" id="segmentScoresBtn" data-step="7"
             data-intro="View your segment scores by clicking here."><i class="fas fa-chart-bar"></i></div>
+        <label style="color:white;">Scores</label>
         <div class="icon-btn" id="recommendationsBtn" data-step="8"
             data-intro="Get recommendations for improvement here."><i class="fas fa-lightbulb"></i></div>
-        <button class="small-button" id="clearStorage" data-step="9" data-intro="Click here to clear all data."><i
-                class="fas fa-trash-alt"></i> Clear All Data</button>
+        <label style="color:white;">Recommendations</label>
         <button class="small-button" id="hearingTestToggle" data-step="10"
             data-intro="Toggle hearing test mode here."><i class="fas fa-headphones"></i> Hearing Test</button>
+        <button class="small-button" id="leaderboardBtn" data-step="13" data-intro="View the leaderboard here."><i
+                class="fas fa-trophy"></i> Leaderboard</button>
+        <button class="small-button" id="dashboardBtn" data-step="14" data-intro="View your progress dashboard here."><i
+                class="fas fa-chart-line"></i> Dashboard</button>
         <label for="level" style="color:white; margin-top: 15px;" data-step="11"
             data-intro="Choose your level here.">Choose Level:</label>
         <select id="level">
@@ -818,10 +852,8 @@
             data-intro="Enter your name here.">Your Name:</label>
         <input type="text" id="userName" placeholder="Enter your name"
             style="padding: 10px; width: 80%; border-radius: 5px; margin-top: 10px;">
-        <button class="leaderboard-btn" id="leaderboardBtn" data-step="13" data-intro="View the leaderboard here."><i
-                class="fas fa-trophy"></i> Leaderboard</button>
-        <button class="small-button" id="dashboardBtn" data-step="14" data-intro="View your progress dashboard here."><i
-                class="fas fa-chart-line"></i> Dashboard</button>
+        <button class="small-button" id="clearStorage" data-step="9" data-intro="Click here to clear all data."><i
+                class="fas fa-trash-alt"></i> Clear All Data</button>
     </nav>
     <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
     <button class="toggle-dark-mode" id="toggleDarkMode" style="position: fixed; top: 10px; right: 10px;"><i
@@ -842,6 +874,8 @@
                 <button type="button" id="tts" data-step="19"
                     data-intro="Click here to hear the correct pronunciation."><i class="fas fa-volume-up"></i> Play
                     Actual</button>
+                <button type="button" id="newSentence" data-step="23" data-intro="Click here to try a new sentence."><i
+                        class="fas fa-redo"></i> Try New Sentence</button>
             </div>
         </form>
         <div id="waveform" data-step="20" data-intro="This area displays the waveform of your recording."></div>
@@ -917,11 +951,9 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>About This Project</h2>
-            <p>This project is designed to help users test and train their pronunciation and Accent by recording their
-                speech and comparing
-                it to the provided text. It uses advanced speech recognition technology to evaluate pronunciation and
-                Accent
-                accuracy and provide feedback in the form of word and alphabet scores.</p>
+            <p>This project is designed to help users test and train their pronunciation and accent by recording their
+                speech and comparing it to the provided text. It uses advanced speech recognition technology to evaluate
+                pronunciation and accent accuracy and provide feedback in the form of word and alphabet scores.</p>
             <h3>How to Use</h3>
             <ol class="about-list">
                 <li><i class="fas fa-keyboard"></i> Enter the text you want to pronounce in the input field.</li>
@@ -1045,10 +1077,6 @@
                         intro: "Click here to learn about the application."
                     },
                     {
-                        element: 'a[href="#"]',
-                        intro: "This link takes you to the About section."
-                    },
-                    {
                         element: '#upload',
                         intro: "Upload your audio files here."
                     },
@@ -1060,21 +1088,10 @@
                         element: '#recommendationsBtn',
                         intro: "Get recommendations for improvement here."
                     },
-                    {
-                        element: '#clearStorage',
-                        intro: "Click here to clear all data."
-                    },
+
                     {
                         element: '#hearingTestToggle',
                         intro: "Toggle hearing test mode here."
-                    },
-                    {
-                        element: '#level',
-                        intro: "Choose your level here."
-                    },
-                    {
-                        element: '#userName',
-                        intro: "Enter your name here."
                     },
                     {
                         element: '#leaderboardBtn',
@@ -1082,12 +1099,26 @@
                     },
                     {
                         element: '#dashboardBtn',
-                        intro: "View your progress dashboard here."
+                        intro: "View your progress dashboard here. "
+                    },
+                    {
+                        element: '#level',
+                        intro: "Choose your level here."
+                    },
+
+                    {
+                        element: '#userName',
+                        intro: "Enter your name here."
+                    },
+                    {
+                        element: '#clearStorage',
+                        intro: "Click here to clear all data."
                     },
                     {
                         element: 'main',
                         intro: "This is the main area where you interact with the application."
                     },
+                    
                     {
                         element: '#text',
                         intro: "Enter the text you want to pronounce here."
@@ -1105,16 +1136,8 @@
                         intro: "Click here to hear the correct pronunciation."
                     },
                     {
-                        element: '#waveform',
-                        intro: "This area displays the waveform of your recording."
-                    },
-                    {
-                        element: '#result',
-                        intro: "Here you will see the results of your pronunciation analysis."
-                    },
-                    {
-                        element: '#dashboard',
-                        intro: "This is your progress dashboard."
+                        element: '#newSentence',
+                        intro: "Click here to try a new sentence."
                     },
                     {
                         element: '.help-button',
@@ -1155,6 +1178,7 @@
         const recordButton = document.getElementById('record');
         const playButton = document.getElementById('play');
         const ttsButton = document.getElementById('tts');
+        const newSentenceButton = document.getElementById('newSentence');
         const resultDiv = document.getElementById('result');
         const audioInput = document.getElementById('audio');
         const textInput = document.getElementById('text');
@@ -1201,12 +1225,18 @@
             }
         });
 
+        newSentenceButton.addEventListener('click', function () {
+            location.reload();
+        });
+
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function (stream) {
                     mediaRecorder = new MediaRecorder(stream);
                     mediaRecorder.start();
                     recordButton.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+                    recordButton.classList.add('recording-button');
+                    recordButton.querySelector('i').classList.add('recording-icon');
                     playButton.disabled = true;
 
                     audioChunks = [];
@@ -1223,7 +1253,9 @@
 
         function stopRecording() {
             mediaRecorder.stop();
-            recordButton.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+            recordButton.innerHTML = '<i class="fas fa-microphone"></i> Record Again';
+            recordButton.classList.remove('recording-button');
+            recordButton.querySelector('i').classList.remove('recording-icon');
             playButton.disabled = false;
         }
 
@@ -1627,6 +1659,7 @@
 
         document.getElementById('clearStorage').addEventListener('click', function () {
             localStorage.clear();
+            window.location.reload();
         });
 
         document.getElementById('hearingTestToggle').addEventListener('click', function () {
@@ -1819,16 +1852,41 @@
                         intro: "This area displays the waveform of your recording. You can play/pause the audio by clicking here."
                     },
                     {
+                        element: '.character',
+                        intro: "This ginne will show you an overall score after each test."
+
+                    },
+                    {
                         element: '#result',
-                        intro: "Here you will see the results of your pronunciation analysis. Click on a word to hear your pronunciation or the actual pronunciation."
+                        intro: "Here you will see the results of your pronunciation analysis. Click on a each words left portion to hear your pronunciation and on the right for the actual pronunciation."
                     },
                     {
                         element: '#segmentScoresBtn',
-                        intro: "Click here to view detailed segment scores."
+                        intro: "Click here to view detailed segment scores. "
                     },
                     {
                         element: '#recommendationsBtn',
                         intro: "Click here to get recommendations for improvement."
+                    },
+                    {
+                        element: '.color-box.red',
+                        intro: "Red indicates very bad/missing pronunciation."
+                    },
+                    {
+                        element: '.color-box.orange',
+                        intro: "Orange indicates a need for improvement."
+                    },
+                    {
+                        element: '.color-box.blue',
+                        intro: "Blue indicates good pronunciation."
+                    },
+                    {
+                        element: '.color-box.green',
+                        intro: "Green indicates excellent pronunciation."
+                    },
+                    {
+                        element: '.help-button',
+                        intro: "Click here anytime for help."
                     }
                 ]
             }).start();
